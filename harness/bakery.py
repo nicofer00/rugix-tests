@@ -157,5 +157,4 @@ class BakeryBuilder:
         cmd = ["./run-bakery", *args]
         logger.info("bakery: %s", " ".join(cmd))
         env = os.environ.copy()
-        env.setdefault("RUGIX_DEV", "true")
         subprocess.run(cmd, cwd=self.project_dir, check=True, env=env)

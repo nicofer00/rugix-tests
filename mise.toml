@@ -6,8 +6,17 @@ uv = "latest"
 python = "3.11"
 
 [tasks.test]
-description = "Run all tests."
-run = './scripts/run-pytest.sh "$@"'
+description = "Run all tests. Pass --dev to use the locally built rugix-bakery:dev image."
+usage = '''
+flag "--dev" help="Use the locally built ghcr.io/rugix/rugix-bakery:dev image (sets RUGIX_DEV=true). Default: published image."
+arg "[pytest_args]" var=#true help="Arguments forwarded to pytest"
+'''
+run = '''
+if [ "${usage_dev:-}" = "true" ]; then
+  export RUGIX_DEV=true
+fi
+./scripts/run-pytest.sh ${usage_pytest_args+"${usage_pytest_args[@]}"}
+'''
 
 [tasks.typecheck]
 description = "Run mypy on the harness and tests."
@@ -28,13 +37,20 @@ uv run --group dev ruff format harness/ tests/ conftest.py
 '''
 
 [tasks.check]
-description = "Run all checks (lint, format, typecheck, test) sequentially."
+description = "Run all checks (lint, format, typecheck, test) sequentially. Pass --dev to use the locally built rugix-bakery:dev image."
+usage = '''
+flag "--dev" help="Use the locally built ghcr.io/rugix/rugix-bakery:dev image (sets RUGIX_DEV=true). Default: published image."
+arg "[pytest_args]" var=#true help="Arguments forwarded to pytest"
+'''
 # Single ``uv sync`` up front so the parallel ``uv run`` invocations underneath
 # the individual tasks don't race on .venv setup.
 run = '''
+if [ "${usage_dev:-}" = "true" ]; then
+  export RUGIX_DEV=true
+fi
 uv sync --group dev
 uv run ruff check harness/ tests/ conftest.py
 uv run ruff format --check harness/ tests/ conftest.py
 uv run mypy harness/ tests/ conftest.py
-./scripts/run-pytest.sh "$@"
+./scripts/run-pytest.sh ${usage_pytest_args+"${usage_pytest_args[@]}"}
 '''

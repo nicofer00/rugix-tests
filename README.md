@@ -21,6 +21,8 @@ mise run check    # lint + typecheck + tests
 mise run test     # tests only
 ```
 
+`mise run test` and `mise run check` use the published `rugix-bakery` image. Pass `--dev` after a local `mise run build` in the Bakery repo to test `ghcr.io/rugix/rugix-bakery:dev` instead (`mise run test --dev`). `RUGIX_DEV=true` still works if you invoke pytest directly.
+
 Per-test artifacts (serial console, command history) land under `test-outputs/<nodeid>/`.
 
 A few tests carry the `extended` marker (deb-package install variants, system-state persistence) and are skipped by default. Set `RUGIX_TESTS_EXTENDED=1` to run them.
